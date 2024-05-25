@@ -97,3 +97,12 @@ Estos DTOs se utilizan principalmente en la comunicación entre el cliente y el 
 ## Mappers
 
 En nuestro proyecto, utilizamos MyBatis, un framework de persistencia en Java, para gestionar la interacción con la base de datos de manera eficiente y segura. Los mappers son interfaces que definen métodos que corresponden a operaciones SQL específicas. Cada método en un mapper está asociado con una consulta SQL que se ejecuta cuando el método es llamado.
+
+#Ignacio
+
+Este servicio depende de las siguientes clases y paquetes:
+
+RentingRequestMapper: Se utiliza para interactuar con la capa de persistencia y realizar operaciones relacionadas con las solicitudes de alquiler.
+PreApprobationService: Servicio que calcula la pre-aprobación de las solicitudes de alquiler.
+EmptyRentingRequestException: Excepción personalizada que se lanza cuando una solicitud de alquiler está vacía.
+RentingRequestNotFoundException: Excepción personalizada que se lanza cuando una solicitud de alquiler no se encuentra.
