@@ -180,3 +180,42 @@ Esta función permite obtener una lista de solicitudes de alquiler filtradas por
 public boolean deleteRentingRequest(long rentingRequestId)
 ```
 Esta función permite eliminar una solicitud de alquiler por su identificador. Si la solicitud no se encuentra, se lanza una RentingRequestNotFoundException.
+
+# Reglas
+
+En este paquete encontramos las reglas de aprobación o denegación para una Renting Request, así como el servicio de Preaprobación, que se encarga de asignar un estado a la request (PENDIENTE, PREAPROVADO Y PREDENEGADO) según si se cumplen las reglas.
+
+
+
+
+
+
+## Approbations
+Contiene el `ApprobationRulesService`, que comprueba si se cumplen las reglas de aprobación. 
+
+Cuando esta clase se instancia, recibe la lista de reglas de aprobación y al usar el método `approveRules()`, itera las reglas y comprueba que si se cumplen para una request específica.
+
+```java
+    public boolean approveRules(RentingRequest rentingRequestDto){
+        for(ApprobationRule rule: approbationRuleList){
+            if(!rule.approve(rentingRequestDto)){
+                return false;
+            }
+        }
+        return true;
+    }
+```
+
+Cada regla implementa la interfaz `ApprobationRule`, aplicando el método:
+
+```java
+boolean approve(RentingRequest request);
+```
+### Implementaciones ApprobationRules
+Con cada mapper, recupera datos de la BDD y aplica la lógica adecuada.
+- Regla 2 - **GrossIncomeRule**: Usa el `EmployeeMapper`, comprueba si el cliente es asalariado ó si, en caso de ser autónomo, la inversión de la request sea menor o igual a los ingresos brutos*3. 
+    > [!CAUTION]
+    > Hace la consulta a BDD del ingreso bruto antes de tener en cuenta si es autónomo o no.
+- Regla 3 - **Debt rule**: Usa el `ClientMapper` y comprueba que la deuda del cliente sea menor que la cuota de la request. 
+- Regla 4 - **EmploymentSeniorityRule**: Usa el `EmployeeMapper` y comprueba que el cliente lleve 3 o más años en su empresa.
+- Regla 11 - **GuarantorVerificationRule**: Con el `ClientMapper`, verifica si el cliente es nuevo ó si NO es garante (no tiene garantías)
