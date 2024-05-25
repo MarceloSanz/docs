@@ -100,9 +100,57 @@ En nuestro proyecto, utilizamos MyBatis, un framework de persistencia en Java, p
 
 #Ignacio
 
+# VehicleServiceImpl
+
+Este servicio se encarga de gestionar la información relacionada con los vehículos disponibles para el alquiler y los extras que se pueden añadir a dichos vehículos.
+
+# Dependencias
+
 Este servicio depende de las siguientes clases y paquetes:
 
-RentingRequestMapper: Se utiliza para interactuar con la capa de persistencia y realizar operaciones relacionadas con las solicitudes de alquiler.
-PreApprobationService: Servicio que calcula la pre-aprobación de las solicitudes de alquiler.
-EmptyRentingRequestException: Excepción personalizada que se lanza cuando una solicitud de alquiler está vacía.
-RentingRequestNotFoundException: Excepción personalizada que se lanza cuando una solicitud de alquiler no se encuentra.
+- VehicleMapper: Se utiliza para interactuar con la capa de persistencia y realizar operaciones relacionadas con los vehículos y sus extras.
+- WrongParamsException: Una excepción personalizada que se lanza cuando ocurren errores relacionados con los parámetros incorrectos.
+
+# Funcionalidades
+## Obtener Vehículos
+``` 
+@Override
+public List<Vehicle> getVehicles(String brand, String color, String model, Double minBaseFee, Double maxBaseFee) {
+    return vehicleMapper.getVehicles(brand, color, model, minBaseFee, maxBaseFee); 
+```
+
+Esta función permite obtener una lista de vehículos filtrada según los siguientes parámetros:
+
+- brand: Marca del vehículo.
+- color: Color del vehículo.
+- model: Modelo del vehículo.
+- minBaseFee: Tarifa base mínima del vehículo.
+- maxBaseFee: Tarifa base máxima del vehículo.
+La función devuelve una lista de objetos Vehicle que cumplen con los criterios especificados.
+
+## Añadir Extra a un Vehículo
+```
+@Override
+public String addExtraToVehicle(long vehicleId, long extraId) throws WrongParamsException {
+    int rowsAffected = vehicleMapper.addExtraToVehicle(vehicleId, extraId);
+```
+Esta función permite añadir un extra a un vehículo específico. Los parámetros necesarios son:
+
+- vehicleId: Identificador del vehículo.
+- extraId: Identificador del extra.
+Si el extra se añade correctamente, la función devuelve el id del extra.
+
+# RentingRequestServiceImpl
+
+Este servicio se encarga de gestionar las solicitudes de alquiler de coches, incluyendo su creación, actualización, obtención, filtrado y eliminación.
+
+# Dependencias
+
+Este servicio depende de las siguientes clases y paquetes:
+
+- RentingRequestMapper: Se utiliza para interactuar con la capa de persistencia y realizar operaciones relacionadas con las solicitudes de alquiler.
+- PreApprobationService: Servicio que calcula la pre-aprobación de las solicitudes de alquiler.
+- EmptyRentingRequestException: Excepción personalizada que se lanza cuando una solicitud de alquiler está vacía.
+- RentingRequestNotFoundException: Excepción personalizada que se lanza cuando una solicitud de alquiler no se encuentra.
+
+
