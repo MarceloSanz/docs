@@ -225,7 +225,7 @@ Con cada mapper, recupera datos de la BDD y aplica la lógica adecuada.
 ## Aprobacion Renting
 
 #### Neet In come Rule
-* Regla de aprobacion 4
+* Regla de aprobacion 1
 
 ```
 public boolean approve(RentingRequest request) { 
