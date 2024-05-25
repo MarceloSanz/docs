@@ -218,7 +218,7 @@ Con cada mapper, recupera datos de la BDD y aplica la lógica adecuada.
     > Hace la consulta a BDD del ingreso bruto antes de tener en cuenta si es autónomo o no.
 - Regla 3 - **Debt rule**: Usa el `ClientMapper` y comprueba que la deuda del cliente sea menor que la cuota de la request. 
 - Regla 4 - **EmploymentSeniorityRule**: Usa el `EmployeeMapper` y comprueba que el cliente lleve 3 o más años en su empresa.
-- Regla 11 - **GuarantorVerificationRule**: Con el `ClientMapper`, verifica si el cliente es antigüo ó si NO es garante (no tiene garantías)
+- Regla 11 - **GuarantorVerificationRule**: Con el `ClientMapper`, verifica si el cliente es antiguo ó si NO es garante (no tiene garantías)
 
 ------------------------------------------------------------
 
