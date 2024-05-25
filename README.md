@@ -188,7 +188,7 @@ En este paquete encontramos las reglas de aprobación o denegación para una Ren
 
 
 
-
+----------------------------------------------------------------------------------------------------
 
 ## Approbations
 Contiene el `ApprobationRulesService`, que comprueba si se cumplen las reglas de aprobación. 
@@ -219,3 +219,64 @@ Con cada mapper, recupera datos de la BDD y aplica la lógica adecuada.
 - Regla 3 - **Debt rule**: Usa el `ClientMapper` y comprueba que la deuda del cliente sea menor que la cuota de la request. 
 - Regla 4 - **EmploymentSeniorityRule**: Usa el `EmployeeMapper` y comprueba que el cliente lleve 3 o más años en su empresa.
 - Regla 11 - **GuarantorVerificationRule**: Con el `ClientMapper`, verifica si el cliente es nuevo ó si NO es garante (no tiene garantías)
+
+------------------------------------------------------------
+
+## Aprobacion Renting
+
+#### Neet In come Rule
+* Regla de aprobacion 4
+
+```
+public boolean approve(RentingRequest request) { 
+  double inversion = 0;
+        for (Vehicle vehicleDto : request.getVehicles()){
+            inversion += vehicleDto.getPrice();
+        }
+        Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("Europe/Paris"));
+        cal.setTime(request.getRentingRequestDate());
+        long averageSalary = mapper.getAverageSalary(request.getClientId(),
+                cal.get(Calendar.YEAR));
+        return inversion <= averageSalary;
+  ....}
+```
+Recupera la lista de vehiculos del renting para hacer un acumulado del precio, y comprueba que la inversion sea inferior al la media de salario.
+
+#### NIF Rule
+* Regla de aprobacion 10
+* El CIF/NIF de la empresa donde trabaja el cliente se encuentra en INFORMA con un resultado antes de impuesto medio de los últimos 3 años superior a 150.000 €
+  * Solo aplica a asalariados
+  * Aplican los años de los que se disponga, si solo se dispone de un año se coge ese año. Si se dispone de 2 años se hace la media de esos dos años.
+  * Si el último balance es de hace más de dos años se considera que no está en INFORMA.
+
+```java
+    private static final float TAX_LIMIT = 150000;
+    private final EmployeeMapper employeeMapper;
+    private final InformaMapper informaMapper;
+```
+```java
+    @Override
+    public boolean approve(RentingRequest request) {
+        Salaried salaried = employeeMapper.isSalaried(request.getClientId());
+
+        if (salaried == null) {
+            return true;
+        }
+
+        if(existCifInEnterpise(salaried.getCif())){
+            float tax = informaMapper.getEnterpriseIncomeOverThreeYears(salaried.getCif());
+            return tax > TAX_LIMIT;
+        }
+
+        return false;
+    }
+
+    private boolean existCifInEnterpise(String enterpiseCif){
+        return informaMapper.countEnterpise(enterpiseCif) > 0;
+    }
+```
+1. Verifica si el cliente es asalariado.
+2. Verifica si tiene el CIF de la empresa y retorna si supera el limite de ingresos en los ultimos 3 años.
+3. Usa informaMapper para obtener el CIF en la tabla INFORMA
+
+### NonApprovedWithWarrantyRule
