@@ -100,6 +100,7 @@ En nuestro proyecto, utilizamos MyBatis, un framework de persistencia en Java, p
 
 # Ignacio
 
+
 # VehicleServiceImpl
 
 Este servicio se encarga de gestionar la información relacionada con los vehículos disponibles para el alquiler y los extras que se pueden añadir a dichos vehículos.
@@ -114,9 +115,7 @@ Este servicio depende de las siguientes clases y paquetes:
 # Funcionalidades
 ## Obtener Vehículos
 ``` 
-@Override
-public List<Vehicle> getVehicles(String brand, String color, String model, Double minBaseFee, Double maxBaseFee) {
-    return vehicleMapper.getVehicles(brand, color, model, minBaseFee, maxBaseFee); 
+public List<Vehicle> getVehicles(String brand, String color, String model, Double minBaseFee, Double maxBaseFee)  
 ```
 
 Esta función permite obtener una lista de vehículos filtrada según los siguientes parámetros:
@@ -130,9 +129,7 @@ La función devuelve una lista de objetos Vehicle que cumplen con los criterios 
 
 ## Añadir Extra a un Vehículo
 ```
-@Override
-public String addExtraToVehicle(long vehicleId, long extraId) throws WrongParamsException {
-    int rowsAffected = vehicleMapper.addExtraToVehicle(vehicleId, extraId);
+public String addExtraToVehicle(long vehicleId, long extraId)
 ```
 Esta función permite añadir un extra a un vehículo específico. Los parámetros necesarios son:
 
@@ -153,4 +150,34 @@ Este servicio depende de las siguientes clases y paquetes:
 - EmptyRentingRequestException: Excepción personalizada que se lanza cuando una solicitud de alquiler está vacía.
 - RentingRequestNotFoundException: Excepción personalizada que se lanza cuando una solicitud de alquiler no se encuentra.
 
+# Funcionalidades
+## Crear Solicitud de Alquiler
 
+```
+public RentingRequest createRentingRequest(RentingRequest rentingRequest)
+```
+Esta función permite crear una nueva solicitud de alquiler. Si la solicitud está vacía, se lanza una EmptyRentingRequestException. La solicitud es evaluada para determinar si se aprueba automáticamente antes de ser guardada.
+
+## Actualizar Estado de Solicitud de Alquiler
+```
+public RentingRequest updateRentingRequestStatus(long rentingRequestId, String status)
+```
+Esta función permite actualizar el estado de una solicitud de alquiler. Si la solicitud no se encuentra, se lanza una RentingRequestNotFoundException.
+
+## Obtener Solicitud de Alquiler
+```
+public RentingRequest getRentingRequest(long rentingRequestId)
+```
+Esta función permite obtener una solicitud de alquiler por su identificador. Si la solicitud no se encuentra, se lanza una RentingRequestNotFoundException.
+
+## Obtener Solicitudes de Alquiler Filtradas
+```
+public List<RentingRequest> getFilteredRentingRequests(String rentingRequestStatus)
+```
+Esta función permite obtener una lista de solicitudes de alquiler filtradas por su estado.
+
+# Eliminar Solicitud de Alquiler
+```
+public boolean deleteRentingRequest(long rentingRequestId)
+```
+Esta función permite eliminar una solicitud de alquiler por su identificador. Si la solicitud no se encuentra, se lanza una RentingRequestNotFoundException.
