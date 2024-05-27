@@ -222,10 +222,9 @@ Con cada mapper, recupera datos de la BDD y aplica la lógica adecuada.
 
 ------------------------------------------------------------
 
-## Aprobacion Renting
-
 #### Neet In come Rule
-* Regla de aprobacion 1
+* Regla de aprobacion 4:
+* ANTIGÜEDAD EMPLEO >= MINIMO 3 AÑOS (ASALARIADO/NÓMINA)
 
 ```
 public boolean approve(RentingRequest request) { 
@@ -243,7 +242,7 @@ public boolean approve(RentingRequest request) {
 Recupera la lista de vehiculos del renting para hacer un acumulado del precio, y comprueba que la inversion sea inferior al la media de salario.
 
 #### NIF Rule
-* Regla de aprobacion 10
+* Regla de aprobacion 10:
 * El CIF/NIF de la empresa donde trabaja el cliente se encuentra en INFORMA con un resultado antes de impuesto medio de los últimos 3 años superior a 150.000 €
   * Solo aplica a asalariados
   * Aplican los años de los que se disponga, si solo se dispone de un año se coge ese año. Si se dispone de 2 años se hace la media de esos dos años.
@@ -277,6 +276,76 @@ Recupera la lista de vehiculos del renting para hacer un acumulado del precio, y
 ```
 1. Verifica si el cliente es asalariado.
 2. Verifica si tiene el CIF de la empresa y retorna si supera el limite de ingresos en los ultimos 3 años.
-3. Usa informaMapper para obtener el CIF en la tabla INFORMA
+3. Usa informaMapper para obtener el CIF en la tabla INFORMA.
 
 ### NonApprovedWithWarrantyRule
+* Regla de aprobación 8:	
+* Si Cliente previamente NO ha sido aprobado con garantías (en un plazo de 2 años desde fecha actual).
+
+```java
+private final RentingRequestMapper mapper;
+    @Override
+    public boolean approve(RentingRequest request) {
+        Date lastRequestDate =
+                mapper.getLastRentingRequestWithWarranty(request);
+        if (lastRequestDate == null) {
+            return true;
+        }
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(lastRequestDate);
+        cal.add(Calendar.YEAR, 2);
+        return !cal.getTime().after(new Date());
+    }
+```
+```java
+    @Select("SELECT MAX(FECHA_RESOLUCION)" +
+            " FROM SOLICITUD" +
+            " WHERE ID_CLIENTE = :request.clientId" +
+            " AND RESULTADO = :request.requestResult")
+    Date getLastRentingRequestWithWarranty(RentingRequest request);
+```
+
+###  NonRejectedRule
+* Regla de aprobación 7:	
+* Si Cliente NO ha sido previamente rechazado (en un plazo de 2 años desde fecha actual).
+```java
+ @Override
+    public boolean approve(RentingRequest request) {
+        Date lastRequestDate =
+                mapper.getLastRentingRequestWithWarranty(request);
+        if (lastRequestDate == null) {
+            return true;
+        }
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(lastRequestDate);
+        cal.add(Calendar.YEAR, 2);
+        return !cal.getTime().after(new Date());    
+    }
+```
+```java
+    @Select("SELECT MAX(FECHA_RESOLUCION)" +
+            " FROM SOLICITUD" +
+            " WHERE ID_CLIENTE = :request.clientId" +
+            " AND RESULTADO = :request.requestResult")
+    Date getLastRentingRequestWithWarranty(RentingRequest request);
+```
+
+### RatingRule
+* Regla de aprobación 9:
+* El Cliente tiene Rating < 5 en SCORING.
+Busca el valor de rating por id de cliente y returna si es < 5.
+En caso de que sea menor retorna true indicando que el metodo approve no es valido.
+```java
+    @Override
+    public boolean approve(RentingRequest request) {
+        String rating = clientMapper.getRating(request.getClientId());
+        int ratingValue = Integer.parseInt(rating);
+        return ratingValue < 5;
+    }
+```
+```java
+    @Select("SELECT c.rating  " +
+            "FROM cliente c " +
+            "WHERE c.ID_CLIENTE = :clientId")
+    String getRating(Long clientId);
+```
